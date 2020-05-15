@@ -22,34 +22,16 @@ def GPIOsetup():
    for led in (RED, YELLOW, GREEN):
       GPIO.setup(LED[led], GPIO.OUT)
 
-def ShowSignal(state):
-   for led in (RED, YELLOW, GREEN):
-      if (state[led]):
-         print("# ",end="")
-      else:
-         print("  ",end="")
-   print("")
 
-def ControlLights(state):
-   for led in (RED,YELLOW,GREEN):
-      GPIO.output(LED[led], state[led])
-   time.sleep(FLASH_TIME)
+def ControlLights():
+    for led in (RED, YELLOW, GREEN):
+        GPIO.output(LED[led], ON)
+        time.sleep(FLASH_TIME)
+    for led in (RED, YELLOW, GREEN):
+        GPIO.output(LED[led], OFF)
+        time.sleep(FLASH_TIME)
 
-def SendLighthouseSignal(signalRED, signalYELLOW, signalGREEN):
-   numItems=[]
-   allsignals=[signalRED, signalYELLOW, signalGREEN]
-   for signal in allsignals:
-      numItems.append(len(signal))
-   for i in range(max(numItems)):
-      state=[]
-      for led in (RED, YELLOW, GREEN):
-         try:
-            state.append(allsignals[led][i])
-         except IndexError:
-            state.append(OFF)
-      ShowSignal(state)
-      ControlLights(state)
 
 if __name__ == "__main__":
     GPIOsetup()
-    SendLighthouseSignal(1, 2, 3)
+    ControlLights()
