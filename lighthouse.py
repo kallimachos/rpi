@@ -13,7 +13,7 @@ import RPi.GPIO as GPIO
 # 1[===================]39
 LED = [40,38,36] #RED, YELLOW, GREEN (uncomment to use)
 
-FLASH_TIME=0.3
+FLASH_TIME=0.5
 RED, YELLOW,GREEN = 0, 1, 2
 ON, OFF = True, False
 
