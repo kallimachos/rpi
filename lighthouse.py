@@ -30,6 +30,11 @@ def ControlLights():
     for led in (RED, YELLOW, GREEN):
         GPIO.output(LED[led], OFF)
         time.sleep(FLASH_TIME)
+    for led in (RED, YELLOW, GREEN):
+        GPIO.output(LED[led], ON)
+    time.sleep(FLASH_TIME)
+    for led in (RED, YELLOW, GREEN):
+        GPIO.output(LED[led], OFF)
 
 
 if __name__ == "__main__":
