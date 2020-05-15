@@ -11,19 +11,19 @@ import RPi.GPIO as GPIO
 # Model+ P1
 # 2[===============XGYR]40
 # 1[===================]39
-LED=[40,38,36] #RED, YELLOW, GREEN (uncomment to use)
+LED = [40,38,36] #RED, YELLOW, GREEN (uncomment to use)
 
 FLASH_TIME=0.3
-RED,YELLOW,GREEN=0,1,2
-ON,OFF=True,False
+RED, YELLOW,GREEN = 0, 1, 2
+ON, OFF = True, False
 
 def GPIOsetup():
    GPIO.setmode(GPIO.BOARD)
-   for led in (RED,YELLOW,GREEN):
-      GPIO.setup(LED[led],GPIO.OUT)
+   for led in (RED, YELLOW, GREEN):
+      GPIO.setup(LED[led], GPIO.OUT)
 
 def ShowSignal(state):
-   for led in (RED,YELLOW,GREEN):
+   for led in (RED, YELLOW, GREEN):
       if (state[led]):
          print("# ",end="")
       else:
@@ -32,17 +32,17 @@ def ShowSignal(state):
 
 def ControlLights(state):
    for led in (RED,YELLOW,GREEN):
-      GPIO.output(LED[led],state[led])
+      GPIO.output(LED[led], state[led])
    time.sleep(FLASH_TIME)
 
-def SendLighthouseSignal(signalRED,signalYELLOW,signalGREEN):
+def SendLighthouseSignal(signalRED, signalYELLOW, signalGREEN):
    numItems=[]
-   allsignals=[signalRED,signalYELLOW,signalGREEN]
+   allsignals=[signalRED, signalYELLOW, signalGREEN]
    for signal in allsignals:
       numItems.append(len(signal))
    for i in range(max(numItems)):
       state=[]
-      for led in (RED,YELLOW,GREEN):
+      for led in (RED, YELLOW, GREEN):
          try:
             state.append(allsignals[led][i])
          except IndexError:
@@ -50,4 +50,6 @@ def SendLighthouseSignal(signalRED,signalYELLOW,signalGREEN):
       ShowSignal(state)
       ControlLights(state)
 
-GPIOsetup()
+if __name__ == "__main__":
+    GPIOsetup()
+    SendLighthouseSignal(1, 2, 3)
