@@ -35,3 +35,4 @@ def ControlLights():
 if __name__ == "__main__":
     GPIOsetup()
     ControlLights()
+    GPIO.cleanup()
