@@ -4,60 +4,39 @@ import time
 
 import board
 import digitalio
-import RPi.GPIO as GPIO
 
-#HARDWARE SETUP
-# Model+ P1
-# 2[=========XGYR]26
-# 1[=============]25
-# LED=[26,24,22] #RED, YELLOW, GREEN
-# Model+ P1
-# 2[===============XGYR]40
-# 1[===================]39
-LED = [40,38,36] #RED, YELLOW, GREEN (uncomment to use)
-
-FLASH_TIME=0.5
-RED, YELLOW,GREEN = 0, 1, 2
-ON, OFF = True, False
-
-def GPIOsetup():
-   GPIO.setmode(GPIO.BOARD)
-   for led in (RED, YELLOW, GREEN):
-      GPIO.setup(LED[led], GPIO.OUT)
+# import RPi.GPIO as GPIO
 
 
-def ControlLights():
-    for led in (RED, YELLOW, GREEN):
-        GPIO.output(LED[led], ON)
-        time.sleep(FLASH_TIME)
-    for led in (RED, YELLOW, GREEN):
-        GPIO.output(LED[led], OFF)
-        time.sleep(FLASH_TIME)
-    for _ in range(2):
-        for led in (RED, YELLOW, GREEN):
-            GPIO.output(LED[led], ON)
-        time.sleep(FLASH_TIME)
-        for led in (RED, YELLOW, GREEN):
-            GPIO.output(LED[led], OFF)
-        time.sleep(FLASH_TIME)
+DELAY = 0.5
+
+
+# def GPIOLights():
+#     GPIO.setmode(GPIO.BOARD)
+#     red = 40
+#     yellow = 38
+#     green = 36
+#     for pin in [red, yellow, green]:
+#         GPIO.setup(pin, GPIO.OUT)
+#         GPIO.output(pin, True)
+#         time.sleep(DELAY)
+#         GPIO.output(pin, False)
+#         time.sleep(DELAY)
+#     GPIO.cleanup()
 
 
 def blinkaLights():
-    print("hello blinky!")
-    red = digitalio.DigitalInOut(board.D40)
-    yellow = digitalio.DigitalInOut(board.D38)
-    green = digitalio.DigitalInOut(board.D36)
+    red = digitalio.DigitalInOut(board.D21)
+    yellow = digitalio.DigitalInOut(board.D20)
+    green = digitalio.DigitalInOut(board.D16)
     for led in [red, yellow, green]:
         led.direction = digitalio.Direction.OUTPUT
-    while True:
         led.value = True
-        time.sleep(0.5)
+        time.sleep(DELAY)
         led.value = False
-        time.sleep(0.5)
+        time.sleep(DELAY)
 
 
 if __name__ == "__main__":
-    # GPIOsetup()
-    # ControlLights()
-    # GPIO.cleanup()
+    # GPIOLights()
     blinkaLights()
