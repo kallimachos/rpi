@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
 import time
+
+import board
+import digitalio
 import RPi.GPIO as GPIO
 
 #HARDWARE SETUP
@@ -39,7 +42,22 @@ def ControlLights():
         time.sleep(FLASH_TIME)
 
 
+def blinkaLights():
+    print("hello blinky!")
+    red = digitalio.DigitalInOut(board.D40)
+    yellow = digitalio.DigitalInOut(board.D38)
+    green = digitalio.DigitalInOut(board.D36)
+    for led in [red, yellow, green]:
+        led.direction = digitalio.Direction.OUTPUT
+    while True:
+        led.value = True
+        time.sleep(0.5)
+        led.value = False
+        time.sleep(0.5)
+
+
 if __name__ == "__main__":
-    GPIOsetup()
-    ControlLights()
-    GPIO.cleanup()
+    # GPIOsetup()
+    # ControlLights()
+    # GPIO.cleanup()
+    blinkaLights()
