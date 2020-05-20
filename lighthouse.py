@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-#lighthouse.py
+
 import time
 import RPi.GPIO as GPIO
 
