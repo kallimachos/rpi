@@ -1,1 +1,8 @@
+adafruit-circuitpython-rgb-display
+black
+flake8
+isort
 psutil
+pytest
+pytest-cov
+pytest-flake8
