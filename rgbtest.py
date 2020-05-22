@@ -41,5 +41,5 @@ while True:
         display.fill(color565(255, 0, 0))  # red
     if buttonA.value and not buttonB.value:  # just button B pressed
         display.fill(color565(0, 0, 255))  # blue
-    if not buttonA.value and not buttonB.value:  # none pressed
+    if not buttonA.value and not buttonB.value:  # both pressed
         display.fill(color565(0, 255, 0))  # green

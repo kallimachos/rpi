@@ -13,6 +13,14 @@ import psutil
 from PIL import Image, ImageDraw, ImageFont
 
 
+def get_buttons():
+    buttonA = digitalio.DigitalInOut(board.D24)
+    buttonA.switch_to_input()
+    buttonB = digitalio.DigitalInOut(board.D23)
+    buttonB.switch_to_input()
+    return buttonA, buttonB
+
+
 def get_display():
     # Configuration for CS and DC pins
     cs_pin = digitalio.DigitalInOut(board.CE0)
@@ -72,10 +80,9 @@ def get_stats():
     return metrics
 
 
-def draw_text(draw, backlight, height, width, metrics):
+def draw_text(draw, height, width, metrics):
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
     line_height = font.getsize(metrics["IP"])[1]
-    backlight.value = True
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
     x = 0
     y = 2  # add padding to the top
@@ -93,15 +100,25 @@ def draw_text(draw, backlight, height, width, metrics):
 
 
 if __name__ == "__main__":
+    buttonA, buttonB = get_buttons()
     disp = get_display()
     image, height, width, rotation = get_image(disp)
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
     try:
         while True:
-            metrics = get_stats()
-            draw_text(draw, backlight, height, width, metrics)
-            disp.image(image, rotation)
-            sleep(30)
+            if buttonB.value and not buttonA.value:  # just button A pressed
+                backlight.value = True
+                metrics = get_stats()
+                draw_text(draw, height, width, metrics)
+                disp.image(image, rotation)
+                sleep(5)
+            elif buttonA.value and not buttonB.value:  # just button B pressed
+                pass
+            elif buttonA.value and not buttonB.value:  # both buttons pressed
+                pass
+            else:  # neither button pressed
+                backlight.value = False
+            sleep(0.1)  # reduce CPU load by sleeping between loops
     except KeyboardInterrupt:
         backlight.value = False
