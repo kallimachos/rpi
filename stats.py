@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Print system stats."""
 
-import subprocess
+# import subprocess
 from time import sleep
 
 import adafruit_rgb_display.st7789 as st7789
