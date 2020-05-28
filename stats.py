@@ -108,10 +108,10 @@ if __name__ == "__main__":
     try:
         while True:
             if buttonB.value and not buttonA.value:  # just button A pressed
-                backlight.value = True
                 metrics = get_stats()
                 draw_text(draw, height, width, metrics)
                 disp.image(image, rotation)
+                backlight.value = True
                 sleep(5)
             elif buttonA.value and not buttonB.value:  # just button B pressed
                 pass
