@@ -1,8 +1,11 @@
 adafruit-circuitpython-rgb-display
 black
+colorlog
 flake8
 isort
 psutil
 pytest
 pytest-cov
+python-dotenv
 pytest-flake8
+requests

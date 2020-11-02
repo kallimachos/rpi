@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Print system stats."""
+"""Display busy message."""
 
 # import subprocess
 from time import sleep
@@ -63,42 +63,24 @@ def get_backlight():
     return backlight
 
 
-def get_stats():
-    MB = 1048576
-    GB = 1073741824
-    metrics = {}
-    metrics["IP"] = f"IP: {psutil.net_if_addrs()['wlan0'][0].address}"
-    # metrics["CPU"] = f"CPU: {psutil.cpu_percent(interval=0.0)}%"
-    metrics["CPU"] = f"CPU: {(psutil.getloadavg()[0] * 100):.1f}%"
-    mem = psutil.virtual_memory()
-    used = (mem.total - mem.available) / MB
-    metrics["Mem"] = f"Mem: {used:.0f}/{(mem.total / MB):.0f}M {mem.percent:.0f}%"
-    disk = psutil.disk_usage("/")
-    metrics["Disk"] = f"Disk: {(disk.used / GB):.1f}/{(disk.total / GB):.1f}G {disk.percent:.0f}%"
-    metrics["Temp"] = f"Temp: {psutil.sensors_temperatures()['cpu-thermal'][0].current:.1f} C"
-    return metrics
-
-
-def draw_text(draw, height, width, metrics):
+def draw_text(draw, height, width, level):
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-    line_height = font.getsize(metrics["IP"])[1]
+    line_height = font.getsize(level)[1]
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
     x = 0
     y = 2  # add padding to the top
     colors = {
-        "IP": "#FFFFFF",
-        "CPU": "#FFFF00",
-        "Mem": "#00FF00",
-        "Disk": "#0000FF",
-        "Temp": "#FF00FF",
+        "low": "#FFFFFF",
+        "med": "#FFFF00",
+        "high": "#00FF00",
     }
-    for metric, fill in colors.items():
-        draw.text((x, y), f"{metrics[metric]}", font=font, fill=fill)
-        y += line_height
+    draw.text((x, y), f"{level}", font=font, fill=colors[level])
+    y += line_height
+    # draw.text((x, y), f"{message}", font=font, fill=colors[level])
     return
 
 
-if __name__ == "__main__":
+def init_screen():
     buttonA, buttonB = get_buttons()
     disp = get_display()
     image, height, width, rotation = get_image(disp)
@@ -107,8 +89,8 @@ if __name__ == "__main__":
     try:
         while True:
             if buttonB.value and not buttonA.value:  # just button A pressed
-                metrics = get_stats()
-                draw_text(draw, height, width, metrics)
+                level = "low"
+                draw_text(draw, height, width, level)
                 disp.image(image, rotation)
                 backlight.value = True
                 sleep(5)
