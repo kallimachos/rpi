@@ -11,12 +11,21 @@ import requests
 logger = colorlog.getLogger()
 
 
-def main(args):
+def getlevel():
+    """Get current level."""
+    logger.info("Getting current level from rpi server")
+    response = requests.get("http://localhost:8080/getlevel")
+    logger.info("Response received from rpi server")
+    print(response.text)
+    return
+
+
+def setlevel(args):
     """Set meeting level."""
     level = args.level
     logger.info(f"Level requested: {level}")
     logger.info("Sending request to rpi server")
-    response = requests.get(f"http://localhost:8080/{level}")
+    response = requests.get(f"http://localhost:8080/setlevel/{level}")
     logger.info("Response received from rpi server")
     response.raise_for_status()
     print(f"Meeting level set: {level}")
@@ -37,10 +46,18 @@ def logconfig(level="WARNING"):
     return
 
 
+def main(args):
+    """Main."""
+    if args.level == "get":
+        getlevel()
+    else:
+        setlevel(args)
+
+
 def menu(args):
     """CLI menu."""
     parser = argparse.ArgumentParser(prog="mclient", description="Meeting client")
-    levels = ("low", "med", "high", "stop")
+    levels = ("get", "off", "low", "med", "high")
     parser.add_argument("level", default="med", choices=levels)
     parser.add_argument(
         "-v", "--verbose", action="count", default=0, help="increase verbosity (-v, -vv)"

@@ -4,19 +4,27 @@
 
 from bottle import get, run
 import colorlog
-
-import mlights
+from time import sleep
 
 logger = colorlog.getLogger()
+level = {"off": "None"}
+
+@get("/setlevel/<newlevel>")
+def setlevel(newlevel):
+    """Set level and message."""
+    levels = {"off": "None", "low": "green", "med": "yellow", "high": "red"}
+    logger.info(f"Setting level to {newlevel}:{levels[newlevel]}.")
+    global level
+    level = {newlevel: levels[newlevel]}
+    logger.info(f"Level set to {level}.")
+    return
 
 
-@get("/<level>")
-def meeting(level):
-    """Set LED and message to specified level."""
-    logger.info("Turning on light and setting message on display.")
-    colors = {"low": "green", "med": "yellow", "high": "red"}
-    result = mlights.blink(colors[level])
-    return result
+@get("/getlevel")
+def getlevel():
+    """Get level and message."""
+    logger.info("Getting level and message.")
+    return level
 
 
 def logconfig(level="DEBUG"):
