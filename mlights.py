@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import json
 import time
 
 import board
@@ -24,7 +25,8 @@ if __name__ == "__main__":
             "red": digitalio.DigitalInOut(board.D21)}
     while True:
         response = requests.get(f"http://localhost:8080/getlevel")
-        level, message = list(response.text)[0], list(response.text.values())[0]
+        text = json.loads(response.text)
+        level, message = list(text)[0], list(text.values())[0]
         if level == "off":
             time.sleep(10.0)
         else:
