@@ -7,15 +7,13 @@ import board
 import digitalio
 import requests
 
-DELAY = 1.0
-
 
 def blink(led):
     led.direction = digitalio.Direction.OUTPUT
     led.value = True
-    time.sleep(DELAY)
+    time.sleep(1.0)
     led.value = False
-    time.sleep(DELAY)
+    time.sleep(2.0)
     return
 
 
@@ -28,8 +26,8 @@ if __name__ == "__main__":
         text = json.loads(response.text)
         level, message = list(text)[0], list(text.values())[0]
         if level == "off":
-            time.sleep(10.0)
+            time.sleep(5.0)
         else:
             led = leds[message]
-            for x in range(10):
+            for x in range(3):
                 blink(led)
