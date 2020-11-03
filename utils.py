@@ -5,7 +5,7 @@ import colorlog
 logger = colorlog.getLogger()
 
 
-def logconfig(level="DEBUG"):
+def logconfig(level="WARNING"):
     """Set logging configuration."""
     handler = colorlog.StreamHandler()
     handler.setFormatter(
