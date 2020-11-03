@@ -70,19 +70,20 @@ def get_backlight():
     return backlight
 
 
-def draw_level(draw, height, width, data):
+def draw_text(draw, height, width, data):
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
     line_height = font.getsize(data["level"])[1]
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
-    x = 1  # add padding to the left
+    x = 0  # add padding to the left
     y = 2  # add padding to the top
-    colors = {
-        "level": "#FFFFFF",
-        "message": "#FFFF00",
-        "end": "#00FF00",
-    }
+    # colors = {
+    #     "level": "#FFFFFF",
+    #     "message": "#FFFF00",
+    #     "end": "#00FF00",
+    # }
+    colors = ["#FFFFFF", "#FFFF00", "#00FF00", "#0000FF", "#FF00FF"]
     for key, value in data.items():
-        draw.text((x, y), f"{key}:{value}", font=font, fill=colors[key])
+        draw.text((x, y), f"{key}:{value}", font=font, fill=colors.pop())
         y += line_height
     return
 
@@ -140,14 +141,15 @@ if __name__ == "__main__":
                     response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
                     data = response.json()
                     logger.info(f"Current level: {data}")
-                    draw_level(draw, height, width, data)
+                    draw_text(draw, height, width, data)
                     disp.image(image, rotation)
                     backlight.value = True
                     sleep(5)
                 elif buttonA.value and not buttonB.value:  # just button B pressed
                     logger.info("Getting stats")
-                    metrics = get_stats()
-                    draw_stats(draw, height, width, metrics)
+                    data = get_stats()
+                    logger.info(f"Stats: {data}")
+                    draw_text(draw, height, width, data)
                     disp.image(image, rotation)
                     backlight.value = True
                     sleep(5)
