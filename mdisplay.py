@@ -76,7 +76,7 @@ def draw_text(draw, height, width, data):
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
     x = 0  # add padding to the left
     y = 2  # add padding to the top
-    colors = ["#FFFFFF", "#FFFF00", "#00FF00", "#0000FF", "#FF00FF"]
+    colors = ["#FF00FF", "#0000FF", "#00FF00", "#FFFF00", "#FFFFFF"]
     for key, value in data.items():
         draw.text((x, y), f"{key}: {value}", font=font, fill=colors.pop())
         y += line_height
