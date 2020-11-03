@@ -5,9 +5,13 @@ import time
 from os import getenv
 
 import board
+import colorlog
 import digitalio
 import requests
 from dotenv import find_dotenv, load_dotenv
+
+
+logger = colorlog.getLogger()
 
 
 def blink(led):
@@ -19,7 +23,22 @@ def blink(led):
     return
 
 
+def logconfig(level="DEBUG"):
+    """Set logging configuration."""
+    handler = colorlog.StreamHandler()
+    handler.setFormatter(
+        colorlog.ColoredFormatter(
+            "%(log_color)s%(levelname)-8s [%(filename)s:%(funcName)s:%(lineno)d] %(message)s"
+        )
+    )
+    logger.addHandler(handler)
+    logger.setLevel(level)
+    logger.debug(f"Logging set to {level}")
+    return
+
+
 if __name__ == "__main__":
+    logconfig()
     load_dotenv(find_dotenv())
     RPI_IP = getenv("RPI_IP")
     RPI_PORT = getenv("RPI_PORT")
@@ -29,12 +48,13 @@ if __name__ == "__main__":
         "high": digitalio.DigitalInOut(board.D21),  # red
     }
     while True:
+        logger.debug("Checking level")
         response = requests.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
-        text = json.loads(response.text)
-        level, message = list(text)[0], list(text.values())[0]
-        if level == "off":
+        data = response.json()
+        logger.debug(f"Current level: {data}")
+        if data["level"] == "off":
             time.sleep(5.0)
         else:
-            led = leds[message]
+            led = leds[data["level"]]
             for x in range(3):
                 blink(led)
