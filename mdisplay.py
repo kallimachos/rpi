@@ -9,6 +9,7 @@ import adafruit_rgb_display.st7789 as st7789
 import board
 import colorlog
 import digitalio
+import psutil
 import requests
 from dotenv import find_dotenv, load_dotenv
 from PIL import Image, ImageDraw, ImageFont
@@ -69,7 +70,7 @@ def get_backlight():
     return backlight
 
 
-def draw_text(draw, height, width, data):
+def draw_level(draw, height, width, data):
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
     line_height = font.getsize(data["level"])[1]
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
@@ -84,6 +85,41 @@ def draw_text(draw, height, width, data):
         draw.text((x, y), f"{key}:{value}", font=font, fill=colors[key])
         y += line_height
     return
+
+
+def draw_stats(draw, height, width, metrics):
+    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+    line_height = font.getsize(metrics["IP"])[1]
+    draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
+    x = 0
+    y = 2  # add padding to the top
+    colors = {
+        "IP": "#FFFFFF",
+        "CPU": "#FFFF00",
+        "Mem": "#00FF00",
+        "Disk": "#0000FF",
+        "Temp": "#FF00FF",
+    }
+    for metric, fill in colors.items():
+        draw.text((x, y), f"{metrics[metric]}", font=font, fill=fill)
+        y += line_height
+    return
+
+
+def get_stats():
+    MB = 1048576
+    GB = 1073741824
+    metrics = {}
+    metrics["IP"] = f"IP: {psutil.net_if_addrs()['wlan0'][0].address}"
+    # metrics["CPU"] = f"CPU: {psutil.cpu_percent(interval=0.0)}%"
+    metrics["CPU"] = f"CPU: {(psutil.getloadavg()[0] * 100):.1f}%"
+    mem = psutil.virtual_memory()
+    used = (mem.total - mem.available) / MB
+    metrics["Mem"] = f"Mem: {used:.0f}/{(mem.total / MB):.0f}M {mem.percent:.0f}%"
+    disk = psutil.disk_usage("/")
+    metrics["Disk"] = f"Disk: {(disk.used / GB):.1f}/{(disk.total / GB):.1f}G {disk.percent:.0f}%"
+    metrics["Temp"] = f"Temp: {psutil.sensors_temperatures()['cpu-thermal'][0].current:.1f} C"
+    return metrics
 
 
 if __name__ == "__main__":
@@ -103,12 +139,17 @@ if __name__ == "__main__":
                 response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
                 data = response.json()
                 logger.info(f"Current level: {data}")
-                draw_text(draw, height, width, data)
+                draw_level(draw, height, width, data)
                 disp.image(image, rotation)
                 backlight.value = True
                 sleep(5)
             elif buttonA.value and not buttonB.value:  # just button B pressed
-                pass
+                logger.info("Getting stats")
+                metrics = get_stats()
+                draw_stats(draw, height, width, metrics)
+                disp.image(image, rotation)
+                backlight.value = True
+                sleep(5)
             elif buttonA.value and not buttonB.value:  # both buttons pressed
                 pass
             else:  # neither button pressed
