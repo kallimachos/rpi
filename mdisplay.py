@@ -76,14 +76,9 @@ def draw_text(draw, height, width, data):
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
     x = 0  # add padding to the left
     y = 2  # add padding to the top
-    # colors = {
-    #     "level": "#FFFFFF",
-    #     "message": "#FFFF00",
-    #     "end": "#00FF00",
-    # }
     colors = ["#FFFFFF", "#FFFF00", "#00FF00", "#0000FF", "#FF00FF"]
     for key, value in data.items():
-        draw.text((x, y), f"{key}:{value}", font=font, fill=colors.pop())
+        draw.text((x, y), f"{key}: {value}", font=font, fill=colors.pop())
         y += line_height
     return
 
@@ -111,15 +106,15 @@ def get_stats():
     MB = 1048576
     GB = 1073741824
     metrics = {}
-    metrics["IP"] = f"IP: {psutil.net_if_addrs()['wlan0'][0].address}"
+    metrics["IP"] = f"{psutil.net_if_addrs()['wlan0'][0].address}"
     # metrics["CPU"] = f"CPU: {psutil.cpu_percent(interval=0.0)}%"
-    metrics["CPU"] = f"CPU: {(psutil.getloadavg()[0] * 100):.1f}%"
+    metrics["CPU"] = f"{(psutil.getloadavg()[0] * 100):.1f}%"
     mem = psutil.virtual_memory()
     used = (mem.total - mem.available) / MB
-    metrics["Mem"] = f"Mem: {used:.0f}/{(mem.total / MB):.0f}M {mem.percent:.0f}%"
+    metrics["Mem"] = f"{used:.0f}/{(mem.total / MB):.0f}M {mem.percent:.0f}%"
     disk = psutil.disk_usage("/")
-    metrics["Disk"] = f"Disk: {(disk.used / GB):.1f}/{(disk.total / GB):.1f}G {disk.percent:.0f}%"
-    metrics["Temp"] = f"Temp: {psutil.sensors_temperatures()['cpu-thermal'][0].current:.1f} C"
+    metrics["Disk"] = f"{(disk.used / GB):.1f}/{(disk.total / GB):.1f}G {disk.percent:.0f}%"
+    metrics["Temp"] = f"{psutil.sensors_temperatures()['cpu-thermal'][0].current:.1f} C"
     return metrics
 
 
