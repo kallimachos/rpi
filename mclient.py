@@ -29,7 +29,7 @@ def getlevel():
 
 def setlevel(args):
     """Set meeting level."""
-    data = {"level": args.level, "message": " ".join(args.message), "end": " ".join(args.end)}
+    data = {"level": args.level, "msg": " ".join(args.message), "end": " ".join(args.end)}
     logger.info(f"Data: {data}")
     logger.info(f"Sending request to rpi server at {RPI_IP}:{RPI_PORT}")
     response = requests.post(f"http://{RPI_IP}:{RPI_PORT}/setlevel", json=data)

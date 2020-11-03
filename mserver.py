@@ -12,7 +12,7 @@ from dotenv import find_dotenv, load_dotenv
 from utils import logconfig
 
 logger = colorlog.getLogger()
-data = json.dumps({"level": "off", "message": "", "end": ""})
+data = json.dumps({"level": "off", "msg": "", "end": ""})
 
 
 @post("/setlevel")
