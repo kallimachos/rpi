@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import json
 import time
 from os import getenv
 
@@ -10,6 +9,7 @@ import digitalio
 import requests
 from dotenv import find_dotenv, load_dotenv
 
+from utils import logconfig
 
 logger = colorlog.getLogger()
 
@@ -20,20 +20,6 @@ def blink(led):
     time.sleep(1.0)
     led.value = False
     time.sleep(2.0)
-    return
-
-
-def logconfig(level="DEBUG"):
-    """Set logging configuration."""
-    handler = colorlog.StreamHandler()
-    handler.setFormatter(
-        colorlog.ColoredFormatter(
-            "%(log_color)s%(levelname)-8s [%(filename)s:%(funcName)s:%(lineno)d] %(message)s"
-        )
-    )
-    logger.addHandler(handler)
-    logger.setLevel(level)
-    logger.debug(f"Logging set to {level}")
     return
 
 
@@ -49,10 +35,10 @@ if __name__ == "__main__":
     }
     with requests.Session() as session:
         while True:
-            logger.debug("Checking level")
+            logger.info("Checking level")
             response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
             data = response.json()
-            logger.debug(f"Current level: {data}")
+            logger.info(f"Current level: {data}")
             if data["level"] == "off":
                 time.sleep(5.0)
             else:

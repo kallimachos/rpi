@@ -9,6 +9,8 @@ import colorlog
 from bottle import get, post, request, run
 from dotenv import find_dotenv, load_dotenv
 
+from utils import logconfig
+
 logger = colorlog.getLogger()
 data = json.dumps({"level": "off", "message": "", "end": ""})
 
@@ -27,20 +29,6 @@ def getlevel():
     """Get level and message."""
     logger.info("Returning level, message, and end time.")
     return data
-
-
-def logconfig(level="DEBUG"):
-    """Set logging configuration."""
-    handler = colorlog.StreamHandler()
-    handler.setFormatter(
-        colorlog.ColoredFormatter(
-            "%(log_color)s%(levelname)-8s [%(filename)s:%(funcName)s:%(lineno)d] %(message)s"
-        )
-    )
-    logger.addHandler(handler)
-    logger.setLevel(level)
-    logger.debug(f"Logging set to {level}")
-    return
 
 
 if __name__ == "__main__":

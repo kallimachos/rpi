@@ -10,6 +10,8 @@ import colorlog
 import requests
 from dotenv import find_dotenv, load_dotenv
 
+from utils import logconfig
+
 logger = colorlog.getLogger()
 load_dotenv(find_dotenv())
 RPI_IP = getenv("RPI_IP")
@@ -37,20 +39,6 @@ def setlevel(args):
     return
 
 
-def logconfig(level="WARNING"):
-    """Set logging configuration."""
-    handler = colorlog.StreamHandler()
-    handler.setFormatter(
-        colorlog.ColoredFormatter(
-            "%(log_color)s%(levelname)-8s [%(filename)s:%(funcName)s:%(lineno)d] %(message)s"
-        )
-    )
-    logger.addHandler(handler)
-    logger.setLevel(level)
-    logger.debug(f"Logging set to {level}")
-    return
-
-
 def main(args):
     """Main."""
     if args.level == "get":
@@ -64,7 +52,9 @@ def menu(args):
     parser = argparse.ArgumentParser(prog="mclient", description="Meeting client")
     levels = ("get", "off", "low", "med", "high")
     parser.add_argument("level", default="med", choices=levels)
-    parser.add_argument("-m", "--message", type=str, nargs="+", default=[], help="Message to display")
+    parser.add_argument(
+        "-m", "--message", type=str, nargs="+", default=[], help="Message to display"
+    )
     parser.add_argument("-e", "--end", type=str, nargs="+", default=[], help="End time")
     parser.add_argument(
         "-v", "--verbose", action="count", default=0, help="increase verbosity (-v, -vv)"
