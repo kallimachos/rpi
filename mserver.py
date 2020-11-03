@@ -36,4 +36,4 @@ if __name__ == "__main__":
     load_dotenv(find_dotenv())
     RPI_IP = getenv("RPI_IP")
     RPI_PORT = getenv("RPI_PORT")
-    run(host=RPI_IP, port=RPI_PORT, debug=True, reloader=True)
+    run(host=RPI_IP, port=RPI_PORT, debug=False, reloader=False)

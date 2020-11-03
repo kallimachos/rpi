@@ -33,6 +33,7 @@ if __name__ == "__main__":
         "med": digitalio.DigitalInOut(board.D20),  # yellow
         "high": digitalio.DigitalInOut(board.D21),  # red
     }
+    print("mlights is running")
     with requests.Session() as session:
         while True:
             logger.info("Checking level")

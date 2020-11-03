@@ -88,7 +88,6 @@ def get_stats():
     GB = 1073741824
     metrics = {}
     metrics["IP"] = f"{psutil.net_if_addrs()['wlan0'][0].address}"
-    # metrics["CPU"] = f"CPU: {psutil.cpu_percent(interval=0.0)}%"
     metrics["CPU"] = f"{(psutil.getloadavg()[0] * 100):.1f}%"
     mem = psutil.virtual_memory()
     used = (mem.total - mem.available) / MB
@@ -109,6 +108,7 @@ if __name__ == "__main__":
     image, height, width, rotation = get_image(disp)
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
+    print("mdisplay is running")
     with requests.Session() as session:
         try:
             while True:
