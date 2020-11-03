@@ -2,10 +2,12 @@
 
 import json
 import time
+from os import getenv
 
 import board
 import digitalio
 import requests
+from dotenv import find_dotenv, load_dotenv
 
 
 def blink(led):
@@ -18,11 +20,16 @@ def blink(led):
 
 
 if __name__ == "__main__":
-    leds = {"green": digitalio.DigitalInOut(board.D16),
-            "yellow": digitalio.DigitalInOut(board.D20),
-            "red": digitalio.DigitalInOut(board.D21)}
+    load_dotenv(find_dotenv())
+    RPI_IP = getenv("RPI_IP")
+    RPI_PORT = getenv("RPI_PORT")
+    leds = {
+        "low": digitalio.DigitalInOut(board.D16),  # green
+        "med": digitalio.DigitalInOut(board.D20),  # yellow
+        "high": digitalio.DigitalInOut(board.D21),  # red
+    }
     while True:
-        response = requests.get(f"http://localhost:8080/getlevel")
+        response = requests.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
         text = json.loads(response.text)
         level, message = list(text)[0], list(text.values())[0]
         if level == "off":

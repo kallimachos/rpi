@@ -4,31 +4,36 @@
 
 import argparse
 import sys
+from os import getenv
 
 import colorlog
 import requests
+from dotenv import find_dotenv, load_dotenv
 
 logger = colorlog.getLogger()
+load_dotenv(find_dotenv())
+RPI_IP = getenv("RPI_IP")
+RPI_PORT = getenv("RPI_PORT")
 
 
 def getlevel():
     """Get current level."""
-    logger.info("Getting current level from rpi server")
-    response = requests.get("http://localhost:8080/getlevel")
-    logger.info("Response received from rpi server")
+    logger.info(f"Getting current level from rpi server at {RPI_IP}:{RPI_PORT}")
+    response = requests.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+    logger.info(f"Response received from rpi server at {RPI_IP}:{RPI_PORT}")
     print(response.text)
     return
 
 
 def setlevel(args):
     """Set meeting level."""
-    level = args.level
-    logger.info(f"Level requested: {level}")
-    logger.info("Sending request to rpi server")
-    response = requests.get(f"http://localhost:8080/setlevel/{level}")
-    logger.info("Response received from rpi server")
+    data = {"level": args.level, "message": " ".join(args.message), "end": " ".join(args.end)}
+    logger.info(f"Data: {data}")
+    logger.info(f"Sending request to rpi server at {RPI_IP}:{RPI_PORT}")
+    response = requests.post(f"http://{RPI_IP}:{RPI_PORT}/setlevel", json=data)
+    logger.info(f"Response received from rpi server at {RPI_IP}:{RPI_PORT}")
     response.raise_for_status()
-    print(f"Meeting level set: {level}")
+    print(f"Level set: {data}")
     return
 
 
@@ -59,6 +64,8 @@ def menu(args):
     parser = argparse.ArgumentParser(prog="mclient", description="Meeting client")
     levels = ("get", "off", "low", "med", "high")
     parser.add_argument("level", default="med", choices=levels)
+    parser.add_argument("-m", "--message", type=str, nargs="+", default=[], help="Message to display")
+    parser.add_argument("-e", "--end", type=str, nargs="+", default=[], help="End time")
     parser.add_argument(
         "-v", "--verbose", action="count", default=0, help="increase verbosity (-v, -vv)"
     )

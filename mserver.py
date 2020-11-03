@@ -2,29 +2,31 @@
 # -*- coding: utf-8 -*-
 """Server for RPi meeting program."""
 
-from bottle import get, run
+import json
+from os import getenv
+
 import colorlog
-from time import sleep
+from bottle import get, post, request, run
+from dotenv import find_dotenv, load_dotenv
 
 logger = colorlog.getLogger()
-level = {"off": "None"}
+data = json.dumps({"level": "off", "message": "", "end": ""})
 
-@get("/setlevel/<newlevel>")
-def setlevel(newlevel):
-    """Set level and message."""
-    levels = {"off": "None", "low": "green", "med": "yellow", "high": "red"}
-    logger.info(f"Setting level to {newlevel}:{levels[newlevel]}.")
-    global level
-    level = {newlevel: levels[newlevel]}
-    logger.info(f"Level set to {level}.")
+
+@post("/setlevel")
+def setlevel():
+    """Set level, message, and end time."""
+    global data
+    data = request.json
+    logger.info(f"Level set: {data}.")
     return
 
 
 @get("/getlevel")
 def getlevel():
     """Get level and message."""
-    logger.info("Getting level and message.")
-    return level
+    logger.info("Returning level, message, and end time.")
+    return data
 
 
 def logconfig(level="DEBUG"):
@@ -43,4 +45,7 @@ def logconfig(level="DEBUG"):
 
 if __name__ == "__main__":
     logconfig()
-    run(host="localhost", port=8080, debug=True, reloader=True)
+    load_dotenv(find_dotenv())
+    RPI_IP = getenv("RPI_IP")
+    RPI_PORT = getenv("RPI_PORT")
+    run(host=RPI_IP, port=RPI_PORT, debug=True, reloader=True)
