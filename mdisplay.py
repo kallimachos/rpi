@@ -72,7 +72,7 @@ def get_backlight():
 
 def draw_text(draw, height, width, data):
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-    line_height = font.getsize("text")
+    line_height = font.getsize("text")[1]
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
     x = 0  # add padding to the left
     y = 2  # add padding to the top
