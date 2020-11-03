@@ -47,14 +47,15 @@ if __name__ == "__main__":
         "med": digitalio.DigitalInOut(board.D20),  # yellow
         "high": digitalio.DigitalInOut(board.D21),  # red
     }
-    while True:
-        logger.debug("Checking level")
-        response = requests.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
-        data = response.json()
-        logger.debug(f"Current level: {data}")
-        if data["level"] == "off":
-            time.sleep(5.0)
-        else:
-            led = leds[data["level"]]
-            for x in range(3):
-                blink(led)
+    with requests.Session() as session:
+        while True:
+            logger.debug("Checking level")
+            response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+            data = response.json()
+            logger.debug(f"Current level: {data}")
+            if data["level"] == "off":
+                time.sleep(5.0)
+            else:
+                led = leds[data["level"]]
+                for x in range(3):
+                    blink(led)
