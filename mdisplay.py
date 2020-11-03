@@ -73,15 +73,15 @@ def draw_text(draw, height, width, data):
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
     line_height = font.getsize(data["level"])[1]
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
-    x = 0
+    x = 1  # add padding to the left
     y = 2  # add padding to the top
     colors = {
-        "low": "#FFFFFF",
-        "med": "#FFFF00",
-        "high": "#00FF00",
+        "level": "#FFFFFF",
+        "message": "#FFFF00",
+        "end": "#00FF00",
     }
     for key, value in data.items():
-        draw.text((x, y), f"{key}:{value}", font=font, fill=colors["low"])
+        draw.text((x, y), f"{key}:{value}", font=font, fill=colors[key])
         y += line_height
     return
 
