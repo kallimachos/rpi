@@ -133,25 +133,28 @@ if __name__ == "__main__":
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
     with requests.Session() as session:
-        while True:
-            if buttonB.value and not buttonA.value:  # just button A pressed
-                logger.info("Checking level")
-                response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
-                data = response.json()
-                logger.info(f"Current level: {data}")
-                draw_level(draw, height, width, data)
-                disp.image(image, rotation)
-                backlight.value = True
-                sleep(5)
-            elif buttonA.value and not buttonB.value:  # just button B pressed
-                logger.info("Getting stats")
-                metrics = get_stats()
-                draw_stats(draw, height, width, metrics)
-                disp.image(image, rotation)
-                backlight.value = True
-                sleep(5)
-            elif buttonA.value and not buttonB.value:  # both buttons pressed
-                pass
-            else:  # neither button pressed
-                backlight.value = False
-                sleep(0.1)  # reduce CPU load by sleeping between loops
+        try:
+            while True:
+                if buttonB.value and not buttonA.value:  # just button A pressed
+                    logger.info("Checking level")
+                    response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+                    data = response.json()
+                    logger.info(f"Current level: {data}")
+                    draw_level(draw, height, width, data)
+                    disp.image(image, rotation)
+                    backlight.value = True
+                    sleep(5)
+                elif buttonA.value and not buttonB.value:  # just button B pressed
+                    logger.info("Getting stats")
+                    metrics = get_stats()
+                    draw_stats(draw, height, width, metrics)
+                    disp.image(image, rotation)
+                    backlight.value = True
+                    sleep(5)
+                elif buttonA.value and not buttonB.value:  # both buttons pressed
+                    pass
+                else:  # neither button pressed
+                    backlight.value = False
+                    sleep(0.1)  # reduce CPU load by sleeping between loops
+        except KeyboardInterrupt:
+            backlight.value = False
