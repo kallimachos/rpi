@@ -2,14 +2,20 @@
 # -*- coding: utf-8 -*-
 """Display busy message."""
 
-# import subprocess
+from os import getenv
 from time import sleep
 
 import adafruit_rgb_display.st7789 as st7789
 import board
+import colorlog
 import digitalio
-import psutil
+import requests
+from dotenv import find_dotenv, load_dotenv
 from PIL import Image, ImageDraw, ImageFont
+
+from utils import logconfig
+
+logger = colorlog.getLogger()
 
 
 def get_buttons():
@@ -63,9 +69,9 @@ def get_backlight():
     return backlight
 
 
-def draw_text(draw, height, width, level):
+def draw_text(draw, height, width, data):
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-    line_height = font.getsize(level)[1]
+    line_height = font.getsize(data["level"])[1]
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
     x = 0
     y = 2  # add padding to the top
@@ -74,23 +80,30 @@ def draw_text(draw, height, width, level):
         "med": "#FFFF00",
         "high": "#00FF00",
     }
-    draw.text((x, y), f"{level}", font=font, fill=colors[level])
-    y += line_height
-    # draw.text((x, y), f"{message}", font=font, fill=colors[level])
+    for key, value in data.items():
+        draw.text((x, y), f"{key}:{value}", font=font, fill=colors["low"])
+        y += line_height
     return
 
 
-def init_screen():
+if __name__ == "__main__":
+    logconfig()
+    load_dotenv(find_dotenv())
+    RPI_IP = getenv("RPI_IP")
+    RPI_PORT = getenv("RPI_PORT")
     buttonA, buttonB = get_buttons()
     disp = get_display()
     image, height, width, rotation = get_image(disp)
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
-    try:
+    with requests.Session() as session:
         while True:
             if buttonB.value and not buttonA.value:  # just button A pressed
-                level = "low"
-                draw_text(draw, height, width, level)
+                logger.info("Checking level")
+                response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+                data = response.json()
+                logger.info(f"Current level: {data}")
+                draw_text(draw, height, width, data)
                 disp.image(image, rotation)
                 backlight.value = True
                 sleep(5)
@@ -100,6 +113,4 @@ def init_screen():
                 pass
             else:  # neither button pressed
                 backlight.value = False
-            sleep(0.1)  # reduce CPU load by sleeping between loops
-    except KeyboardInterrupt:
-        backlight.value = False
+                sleep(0.1)  # reduce CPU load by sleeping between loops

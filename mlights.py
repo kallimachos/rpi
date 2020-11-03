@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-import time
 from os import getenv
+from time import sleep
 
 import board
 import colorlog
@@ -17,9 +17,9 @@ logger = colorlog.getLogger()
 def blink(led):
     led.direction = digitalio.Direction.OUTPUT
     led.value = True
-    time.sleep(1.0)
+    sleep(1)
     led.value = False
-    time.sleep(2.0)
+    sleep(2)
     return
 
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
             data = response.json()
             logger.info(f"Current level: {data}")
             if data["level"] == "off":
-                time.sleep(5.0)
+                sleep(5)
             else:
                 led = leds[data["level"]]
                 for x in range(3):
