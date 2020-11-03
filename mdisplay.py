@@ -83,25 +83,6 @@ def draw_text(draw, height, width, data):
     return
 
 
-def draw_stats(draw, height, width, metrics):
-    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-    line_height = font.getsize(metrics["IP"])[1]
-    draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
-    x = 0
-    y = 2  # add padding to the top
-    colors = {
-        "IP": "#FFFFFF",
-        "CPU": "#FFFF00",
-        "Mem": "#00FF00",
-        "Disk": "#0000FF",
-        "Temp": "#FF00FF",
-    }
-    for metric, fill in colors.items():
-        draw.text((x, y), f"{metrics[metric]}", font=font, fill=fill)
-        y += line_height
-    return
-
-
 def get_stats():
     MB = 1048576
     GB = 1073741824
