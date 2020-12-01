@@ -1,8 +1,14 @@
 adafruit-circuitpython-rgb-display
+bottle
 black
 colorlog
-flake8
-isort
+flake8-broken-line
+flake8-bugbear
+flake8-comprehensions
+flake8-debugger
+flake8-docstrings
+flake8-isort
+flake8-quotes
 psutil
 pytest
 pytest-cov

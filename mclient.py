@@ -45,6 +45,7 @@ def main(args):
         getlevel()
     else:
         setlevel(args)
+    return
 
 
 def menu(args):

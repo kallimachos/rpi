@@ -20,6 +20,7 @@ logger = colorlog.getLogger()
 
 
 def get_buttons():
+    """Get display hardware buttons."""
     buttonA = digitalio.DigitalInOut(board.D24)
     buttonA.switch_to_input()
     buttonB = digitalio.DigitalInOut(board.D23)
@@ -28,7 +29,7 @@ def get_buttons():
 
 
 def get_display():
-    # Configuration for CS and DC pins
+    """Configuration for CS and DC pins."""
     cs_pin = digitalio.DigitalInOut(board.CE0)
     dc_pin = digitalio.DigitalInOut(board.D25)
     reset_pin = None
@@ -49,7 +50,7 @@ def get_display():
 
 
 def get_image(disp):
-    # Create blank image for drawing. Use 'RGB' for full color.
+    """Create blank image for drawing. Use 'RGB' for full color."""
     height = disp.width  # swap height/width for landscape mode
     width = disp.height
     image = Image.new("RGB", (width, height))
@@ -58,6 +59,7 @@ def get_image(disp):
 
 
 def get_draw(disp, image, rotation):
+    """Get drawing instance."""
     draw = ImageDraw.Draw(image)
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
     disp.image(image, rotation)
@@ -65,12 +67,14 @@ def get_draw(disp, image, rotation):
 
 
 def get_backlight():
+    """Get backlight."""
     backlight = digitalio.DigitalInOut(board.D22)
     backlight.switch_to_output()
     return backlight
 
 
 def draw_text(draw, height, width, data):
+    """Draw text."""
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
     line_height = font.getsize("text")[1]
     draw.rectangle((0, 0, width, height), outline=0, fill=0)  # Draw black box to clear image.
@@ -84,6 +88,7 @@ def draw_text(draw, height, width, data):
 
 
 def get_stats():
+    """Get RPi stats."""
     MB = 1048576
     GB = 1073741824
     metrics = {}
@@ -96,6 +101,45 @@ def get_stats():
     metrics["Disk"] = f"{(disk.used / GB):.1f}/{(disk.total / GB):.1f}G {disk.percent:.0f}%"
     metrics["Temp"] = f"{psutil.sensors_temperatures()['cpu-thermal'][0].current:.1f} C"
     return metrics
+
+
+def display_level(disp, draw, height, width):
+    """Display current level."""
+    logger.info("Checking level")
+    response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+    data = response.json()
+    logger.info(f"Current level: {data}")
+    draw_text(draw, height, width, data)
+    disp.image(image, rotation)
+    backlight.value = True
+    sleep(5)
+    return
+
+
+def display_stats(disp, draw, height, width):
+    """Display RPi stats."""
+    logger.info("Getting stats")
+    data = get_stats()
+    logger.info(f"Stats: {data}")
+    draw_text(draw, height, width, data)
+    disp.image(image, rotation)
+    backlight.value = True
+    sleep(5)
+    return
+
+
+def reset_level(disp, draw, height, width):
+    """Set level to off."""
+    logger.info("Resetting level")
+    data = {"level": "off", "msg": "", "end": ""}
+    logger.info(f"Data: {data}")
+    requests.post(f"http://{RPI_IP}:{RPI_PORT}/setlevel", json=data)
+    logger.info(f"Level set: {data}")
+    draw_text(draw, height, width, data)
+    disp.image(image, rotation)
+    backlight.value = True
+    sleep(5)
+    return
 
 
 if __name__ == "__main__":
@@ -113,24 +157,11 @@ if __name__ == "__main__":
         try:
             while True:
                 if buttonB.value and not buttonA.value:  # just button A pressed
-                    logger.info("Checking level")
-                    response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
-                    data = response.json()
-                    logger.info(f"Current level: {data}")
-                    draw_text(draw, height, width, data)
-                    disp.image(image, rotation)
-                    backlight.value = True
-                    sleep(5)
+                    display_level(disp, draw, height, width)
                 elif buttonA.value and not buttonB.value:  # just button B pressed
-                    logger.info("Getting stats")
-                    data = get_stats()
-                    logger.info(f"Stats: {data}")
-                    draw_text(draw, height, width, data)
-                    disp.image(image, rotation)
-                    backlight.value = True
-                    sleep(5)
+                    display_stats(disp, draw, height, width)
                 elif buttonA.value and not buttonB.value:  # both buttons pressed
-                    pass
+                    reset_level(disp, draw, height, width)
                 else:  # neither button pressed
                     backlight.value = False
                     sleep(0.1)  # reduce CPU load by sleeping between loops
