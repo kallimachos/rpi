@@ -160,7 +160,7 @@ if __name__ == "__main__":
                     display_level(disp, draw, height, width)
                 elif buttonA.value and not buttonB.value:  # just button B pressed
                     display_stats(disp, draw, height, width)
-                elif buttonA.value and not buttonB.value:  # both buttons pressed
+                elif not buttonA.value and not buttonB.value:  # both buttons pressed
                     reset_level(disp, draw, height, width)
                 else:  # neither button pressed
                     backlight.value = False
