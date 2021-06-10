@@ -1,6 +1,7 @@
 adafruit-circuitpython-rgb-display
 bottle
 black
+click
 colorlog
 flake8-broken-line
 flake8-bugbear

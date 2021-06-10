@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 """Client for RPi meeting program."""
 
-import argparse
-import sys
 from os import getenv
+from platform import python_version
 
+import click
 import colorlog
 import requests
 from dotenv import find_dotenv, load_dotenv
 
-from utils import logconfig
+import utils
 
 logger = colorlog.getLogger()
 load_dotenv(find_dotenv())
@@ -27,9 +27,9 @@ def getlevel():
     return
 
 
-def setlevel(args):
+def setlevel(level, message, end):
     """Set meeting level."""
-    data = {"level": args.level, "msg": " ".join(args.message), "end": " ".join(args.end)}
+    data = {"level": level, "msg": message, "end": end}
     logger.info(f"Data: {data}")
     logger.info(f"Sending request to rpi server at {RPI_IP}:{RPI_PORT}")
     response = requests.post(f"http://{RPI_IP}:{RPI_PORT}/setlevel", json=data)
@@ -39,36 +39,81 @@ def setlevel(args):
     return
 
 
-def main(args):
-    """Main."""
-    if args.level == "get":
-        getlevel()
-    else:
-        setlevel(args)
+def set_options(function):
+    """Set options."""
+    function = click.option(
+        "-m",
+        "--message",
+        "message",
+        help="add message",
+    )(function)
+    function = click.option(
+        "-e",
+        "--end",
+        "end",
+        help="add end time",
+    )(function)
+    return function
+
+
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.version_option("", message=f"mclient 1.0.0 || Python {python_version()}")
+def cli() -> None:
+    """Meet client."""
     return
 
 
-def menu(args):
-    """CLI menu."""
-    parser = argparse.ArgumentParser(prog="mclient", description="Meeting client")
-    levels = ("get", "off", "low", "med", "high")
-    parser.add_argument("level", default="med", choices=levels)
-    parser.add_argument(
-        "-m", "--message", type=str, nargs="+", default=[], help="Message to display"
-    )
-    parser.add_argument("-e", "--end", type=str, nargs="+", default=[], help="End time")
-    parser.add_argument(
-        "-v", "--verbose", action="count", default=0, help="increase verbosity (-v, -vv)"
-    )
-    arguments = parser.parse_args(args)
-    if arguments.verbose == 1:
-        logconfig("INFO")
-    elif arguments.verbose == 2:
-        logconfig("DEBUG")
-    logger.debug(f"args: {arguments}")
-    return arguments
+@cli.command()
+@utils.verbosity
+def get(verbosity):
+    """Get current level."""
+    utils.logconfig(verbosity)
+    logger.info(f"Getting current level from rpi server at {RPI_IP}:{RPI_PORT}")
+    response = requests.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+    logger.info(f"Response received from rpi server at {RPI_IP}:{RPI_PORT}")
+    print(response.text)
+    return
+
+
+@cli.command()
+@set_options
+@utils.verbosity
+def low(message, end, verbosity):
+    """Set low level."""
+    utils.logconfig(verbosity)
+    setlevel("low", message, end)
+    return
+
+
+@cli.command()
+@set_options
+@utils.verbosity
+def med(message, end, verbosity):
+    """Set medium level."""
+    utils.logconfig(verbosity)
+    setlevel("med", message, end)
+    return
+
+
+@cli.command()
+@set_options
+@utils.verbosity
+def high(message, end, verbosity):
+    """Set high level."""
+    utils.logconfig(verbosity)
+    setlevel("high", message, end)
+    return
+
+
+@cli.command()
+@set_options
+@utils.verbosity
+def off(message, end, verbosity):
+    """Turn off."""
+    utils.logconfig(verbosity)
+    setlevel("off", message, end)
+    return
 
 
 if __name__ == "__main__":
-    args = menu(sys.argv[1:])
-    main(args)
+    cli()
