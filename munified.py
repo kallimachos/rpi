@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Display busy message and lights."""
 
-from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import Process
 from os import getenv
 from time import sleep
 
@@ -166,30 +166,32 @@ def mlights():
     """Run lights."""
     print("mlights is running")
     with requests.Session() as session:
-        response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
-        data = response.json()
-        logger.info(f"Current level: {data}")
-        if data["level"] == "off":
-            sleep(5)
-        else:
-            led = LEDS[data["level"]]
-            for x in range(3):
-                blink(led)
+        while True:
+            response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+            data = response.json()
+            logger.info(f"Current level: {data}")
+            if data["level"] == "off":
+                sleep(5)
+            else:
+                led = LEDS[data["level"]]
+                for x in range(3):
+                    blink(led)
     return
 
 
 def mdisplay():
     """Run display."""
     print("mdisplay is running")
-    if buttonB.value and not buttonA.value:  # just button A pressed
-        display_level(disp, draw, height, width)
-    elif buttonA.value and not buttonB.value:  # just button B pressed
-        display_stats(disp, draw, height, width)
-    elif not buttonA.value and not buttonB.value:  # both buttons pressed
-        reset_level(disp, draw, height, width)
-    else:  # neither button pressed
-        backlight.value = False
-        sleep(0.1)  # reduce CPU load by sleeping between loops
+    while True:
+        if buttonB.value and not buttonA.value:  # just button A pressed
+            display_level(disp, draw, height, width)
+        elif buttonA.value and not buttonB.value:  # just button B pressed
+            display_stats(disp, draw, height, width)
+        elif not buttonA.value and not buttonB.value:  # both buttons pressed
+            reset_level(disp, draw, height, width)
+        else:  # neither button pressed
+            backlight.value = False
+            sleep(0.1)  # reduce CPU load by sleeping between loops
     return
 
 
@@ -203,9 +205,7 @@ if __name__ == "__main__":
     backlight = get_backlight()
     print("munified is running")
     try:
-        while True:
-            with ProcessPoolExecutor() as ex:
-                ex.submit(mlights)
-                ex.submit(mdisplay)
+        p1 = Process(target=mlights).start()
+        p2 = Process(target=mdisplay).start()
     except KeyboardInterrupt:
         backlight.value = False
