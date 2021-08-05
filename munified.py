@@ -165,17 +165,16 @@ def blink(led):
 def mlights():
     """Run lights."""
     print("mlights is running")
-    with requests.Session() as session:
-        while True:
-            response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
-            data = response.json()
-            logger.info(f"Current level: {data}")
-            if data["level"] == "off":
-                sleep(5)
-            else:
-                led = LEDS[data["level"]]
-                for x in range(3):
-                    blink(led)
+    while True:
+        response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+        data = response.json()
+        logger.info(f"Current level: {data}")
+        if data["level"] == "off":
+            sleep(5)
+        else:
+            led = LEDS[data["level"]]
+            for x in range(3):
+                blink(led)
     return
 
 
@@ -204,8 +203,9 @@ if __name__ == "__main__":
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
     print("munified is running")
-    try:
-        p1 = Process(target=mlights).start()
-        p2 = Process(target=mdisplay).start()
-    except KeyboardInterrupt:
-        backlight.value = False
+    with requests.Session() as session:
+        try:
+            p1 = Process(target=mlights).start()
+            p2 = Process(target=mdisplay).start()
+        except KeyboardInterrupt:
+            backlight.value = False
