@@ -158,12 +158,13 @@ def blink(led):
     led.value = True
     sleep(1)
     led.value = False
-    sleep(1)
+    sleep(2)
     return
 
 
 def mlights():
     """Run lights."""
+    print("mlights is running")
     with requests.Session() as session:
         response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
         data = response.json()
@@ -179,6 +180,7 @@ def mlights():
 
 def mdisplay():
     """Run display."""
+    print("mdisplay is running")
     if buttonB.value and not buttonA.value:  # just button A pressed
         display_level(disp, draw, height, width)
     elif buttonA.value and not buttonB.value:  # just button B pressed
@@ -193,13 +195,13 @@ def mdisplay():
 
 if __name__ == "__main__":
     logconfig()
-    print("Starting mdisplay...")
+    print("Starting munified...")
     buttonA, buttonB = get_buttons()
     disp = get_display()
     image, height, width, rotation = get_image(disp)
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
-    print("mdisplay is running")
+    print("munified is running")
     try:
         while True:
             with ProcessPoolExecutor() as ex:
