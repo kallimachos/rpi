@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Display busy message."""
+"""Display busy message and lights."""
 
+from multiprocessing import Process
 from os import getenv
 from time import sleep
 
@@ -17,6 +18,14 @@ from PIL import Image, ImageDraw, ImageFont
 from utils import logconfig
 
 logger = colorlog.getLogger()
+load_dotenv(find_dotenv())
+RPI_IP = getenv("RPI_IP")
+RPI_PORT = getenv("RPI_PORT")
+LEDS = {
+    "low": digitalio.DigitalInOut(board.D16),  # green
+    "med": digitalio.DigitalInOut(board.D20),  # yellow
+    "high": digitalio.DigitalInOut(board.D21),  # red
+}
 
 
 def get_buttons():
@@ -142,28 +151,60 @@ def reset_level(disp, draw, height, width):
     return
 
 
+def blink(led):
+    """Blink LED."""
+    led.direction = digitalio.Direction.OUTPUT
+    led.value = True
+    sleep(1)
+    led.value = False
+    sleep(2)
+    return
+
+
+def mlights():
+    """Run lights."""
+    print("mlights is running")
+    while True:
+        response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+        data = response.json()
+        logger.info(f"Current level: {data}")
+        if data["level"] == "off":
+            sleep(5)
+        else:
+            led = LEDS[data["level"]]
+            for x in range(3):
+                blink(led)
+    return
+
+
+def mdisplay():
+    """Run display."""
+    print("mdisplay is running")
+    while True:
+        if buttonB.value and not buttonA.value:  # just button A pressed
+            display_level(disp, draw, height, width)
+        elif buttonA.value and not buttonB.value:  # just button B pressed
+            display_stats(disp, draw, height, width)
+        elif not buttonA.value and not buttonB.value:  # both buttons pressed
+            reset_level(disp, draw, height, width)
+        else:  # neither button pressed
+            backlight.value = False
+            sleep(0.1)  # reduce CPU load by sleeping between loops
+    return
+
+
 if __name__ == "__main__":
     logconfig()
-    load_dotenv(find_dotenv())
-    RPI_IP = getenv("RPI_IP")
-    RPI_PORT = getenv("RPI_PORT")
+    print("Starting munified...")
     buttonA, buttonB = get_buttons()
     disp = get_display()
     image, height, width, rotation = get_image(disp)
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
-    print("mdisplay is running")
+    print("munified is running")
     with requests.Session() as session:
         try:
-            while True:
-                if buttonB.value and not buttonA.value:  # just button A pressed
-                    display_level(disp, draw, height, width)
-                elif buttonA.value and not buttonB.value:  # just button B pressed
-                    display_stats(disp, draw, height, width)
-                elif not buttonA.value and not buttonB.value:  # both buttons pressed
-                    reset_level(disp, draw, height, width)
-                else:  # neither button pressed
-                    backlight.value = False
-                    sleep(0.1)  # reduce CPU load by sleeping between loops
+            p1 = Process(target=mlights).start()
+            p2 = Process(target=mdisplay).start()
         except KeyboardInterrupt:
             backlight.value = False
