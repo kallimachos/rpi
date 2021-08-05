@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 """Display busy message and lights."""
 
+from concurrent.futures import ProcessPoolExecutor
 from os import getenv
 from time import sleep
+
 
 import adafruit_rgb_display.st7789 as st7789
 import board
@@ -17,6 +19,14 @@ from PIL import Image, ImageDraw, ImageFont
 from utils import logconfig
 
 logger = colorlog.getLogger()
+load_dotenv(find_dotenv())
+RPI_IP = getenv("RPI_IP")
+RPI_PORT = getenv("RPI_PORT")
+LEDS = {
+    "low": digitalio.DigitalInOut(board.D16),  # green
+    "med": digitalio.DigitalInOut(board.D20),  # yellow
+    "high": digitalio.DigitalInOut(board.D21),  # red
+}
 
 
 def get_buttons():
@@ -143,6 +153,7 @@ def reset_level(disp, draw, height, width):
 
 
 def blink(led):
+    """Blink LED."""
     led.direction = digitalio.Direction.OUTPUT
     led.value = True
     sleep(1)
@@ -151,43 +162,49 @@ def blink(led):
     return
 
 
+def mlights():
+    """Run lights."""
+    with requests.Session() as session:
+        while True:
+            response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
+            data = response.json()
+            logger.info(f"Current level: {data}")
+            if data["level"] == "off":
+                sleep(5)
+            else:
+                led = LEDS[data["level"]]
+                for x in range(3):
+                    blink(led)
+    return
+
+
+def mdisplay():
+    """Run display."""
+    while True:
+        if buttonB.value and not buttonA.value:  # just button A pressed
+            display_level(disp, draw, height, width)
+        elif buttonA.value and not buttonB.value:  # just button B pressed
+            display_stats(disp, draw, height, width)
+        elif not buttonA.value and not buttonB.value:  # both buttons pressed
+            reset_level(disp, draw, height, width)
+        else:  # neither button pressed
+            backlight.value = False
+            sleep(0.1)  # reduce CPU load by sleeping between loops
+    return
+
+
 if __name__ == "__main__":
     logconfig()
-    load_dotenv(find_dotenv())
-    RPI_IP = getenv("RPI_IP")
-    RPI_PORT = getenv("RPI_PORT")
-    LEDS = {
-        "low": digitalio.DigitalInOut(board.D16),  # green
-        "med": digitalio.DigitalInOut(board.D20),  # yellow
-        "high": digitalio.DigitalInOut(board.D21),  # red
-    }
-    print("mlights is running")
+    print("Starting mdisplay...")
     buttonA, buttonB = get_buttons()
     disp = get_display()
     image, height, width, rotation = get_image(disp)
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
     print("mdisplay is running")
-    with requests.Session() as session:
-        try:
-            while True:
-                response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
-                data = response.json()
-                logger.info(f"Current level: {data}")
-                if data["level"] == "off":
-                    sleep(5)
-                else:
-                    led = LEDS[data["level"]]
-                    for x in range(3):
-                        blink(led)
-                if buttonB.value and not buttonA.value:  # just button A pressed
-                    display_level(disp, draw, height, width)
-                elif buttonA.value and not buttonB.value:  # just button B pressed
-                    display_stats(disp, draw, height, width)
-                elif not buttonA.value and not buttonB.value:  # both buttons pressed
-                    reset_level(disp, draw, height, width)
-                else:  # neither button pressed
-                    backlight.value = False
-                    sleep(0.1)  # reduce CPU load by sleeping between loops
-        except KeyboardInterrupt:
-            backlight.value = False
+    try:
+        with ProcessPoolExecutor() as ex:
+            ex.submit(mlights)
+            ex.submit(mdisplay)
+    except KeyboardInterrupt:
+        backlight.value = False
