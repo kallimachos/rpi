@@ -147,7 +147,7 @@ def blink(led):
     led.value = True
     sleep(1)
     led.value = False
-    sleep(2)
+    sleep(1)
     return
 
 
@@ -161,6 +161,7 @@ if __name__ == "__main__":
         "med": digitalio.DigitalInOut(board.D20),  # yellow
         "high": digitalio.DigitalInOut(board.D21),  # red
     }
+    print("mlights is running")
     buttonA, buttonB = get_buttons()
     disp = get_display()
     image, height, width, rotation = get_image(disp)
