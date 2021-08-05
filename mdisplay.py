@@ -99,7 +99,7 @@ def get_stats():
     metrics["Mem"] = f"{used:.0f}/{(mem.total / MB):.0f}M {mem.percent:.0f}%"
     disk = psutil.disk_usage("/")
     metrics["Disk"] = f"{(disk.used / GB):.1f}/{(disk.total / GB):.1f}G {disk.percent:.0f}%"
-    metrics["Temp"] = f"{psutil.sensors_temperatures()['cpu-thermal'][0].current:.1f} C"
+    metrics["Temp"] = f"{psutil.sensors_temperatures()['cpu_thermal'][0].current:.1f} C"
     return metrics
 
 
