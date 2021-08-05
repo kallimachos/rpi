@@ -163,7 +163,7 @@ def blink(led):
 
 def mlights():
     """Run lights."""
-    print("mlights is running")
+    print("lights are running")
     while True:
         response = session.get(f"http://{RPI_IP}:{RPI_PORT}/getlevel")
         data = response.json()
@@ -179,7 +179,7 @@ def mlights():
 
 def mdisplay():
     """Run display."""
-    print("mdisplay is running")
+    print("display is running")
     while True:
         if buttonB.value and not buttonA.value:  # just button A pressed
             display_level(disp, draw, height, width)
@@ -195,13 +195,12 @@ def mdisplay():
 
 if __name__ == "__main__":
     logconfig()
-    print("Starting munified...")
+    print("Starting mdisplay...")
     buttonA, buttonB = get_buttons()
     disp = get_display()
     image, height, width, rotation = get_image(disp)
     draw = get_draw(disp, image, rotation)
     backlight = get_backlight()
-    print("munified is running")
     with requests.Session() as session:
         try:
             p1 = Process(target=mlights).start()
