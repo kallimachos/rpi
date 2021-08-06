@@ -29,7 +29,7 @@ def getlevel():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="/home/pi/mserver.log")  # level=logging.DEBUG)
+    logging.basicConfig(filename="/home/pi/mserver.log", level=logging.INFO)
     load_dotenv(find_dotenv())
     RPI_IP = getenv("RPI_IP")
     RPI_PORT = getenv("RPI_PORT")
