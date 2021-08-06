@@ -9,6 +9,7 @@ from os import getenv
 from bottle import get, post, request, run
 from dotenv import find_dotenv, load_dotenv
 
+logging.basicConfig(filename="/home/pi/mserver.log", level=logging.DEBUG)
 data = json.dumps({"level": "off", "msg": "", "end": ""})
 
 
@@ -29,7 +30,6 @@ def getlevel():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="/home/pi/mserver.log", level=logging.DEBUG)
     logging.info("load dotenv")
     load_dotenv(find_dotenv())
     RPI_IP = getenv("RPI_IP")
