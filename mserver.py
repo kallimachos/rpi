@@ -5,7 +5,6 @@
 import json
 import logging
 from os import getenv
-from time import sleep
 
 from bottle import get, post, request, run
 from dotenv import find_dotenv, load_dotenv
@@ -30,13 +29,8 @@ def getlevel():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="/home/pi/mserver.log", level=logging.DEBUG)
-    logging.info("load dotenv")
+    logging.basicConfig(filename="/home/pi/mserver.log")  # level=logging.DEBUG)
     load_dotenv(find_dotenv())
     RPI_IP = getenv("RPI_IP")
     RPI_PORT = getenv("RPI_PORT")
-    logging.info(f"RPI_IP: {RPI_IP}")
-    logging.info(f"RPI_PORT: {RPI_PORT}")
-    logging.info("run server")
-    sleep(5)
-    run(host=RPI_IP, port=RPI_PORT, debug=True, reloader=True)
+    run(host=RPI_IP, port=RPI_PORT, debug=False, reloader=True)
