@@ -30,8 +30,13 @@ def getlevel():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="/home/pi/rpi/mserver.log", encoding='utf-8', level=logging.DEBUG)
+    logging.basicConfig(filename="/home/pi/mserver.log", encoding="utf-8", level=logging.DEBUG)
+    logging.info("load dotenv")
     load_dotenv(find_dotenv())
     RPI_IP = getenv("RPI_IP")
     RPI_PORT = getenv("RPI_PORT")
-    run(host=RPI_IP, port=RPI_PORT, debug=False, reloader=False)
+    logging.info(f"RPI_IP: {RPI_IP}")
+    logging.info(f"RPI_PORT: {RPI_PORT}")
+    logging.info("run server")
+    run(host=RPI_IP, port=RPI_PORT, debug=True, reloader=False)
+    logging.info("exit server")
