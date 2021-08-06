@@ -9,7 +9,6 @@ from os import getenv
 from bottle import get, post, request, run
 from dotenv import find_dotenv, load_dotenv
 
-
 data = json.dumps({"level": "off", "msg": "", "end": ""})
 
 
