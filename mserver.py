@@ -37,5 +37,5 @@ if __name__ == "__main__":
     logging.info(f"RPI_IP: {RPI_IP}")
     logging.info(f"RPI_PORT: {RPI_PORT}")
     logging.info("run server")
-    run(host=RPI_IP, port=RPI_PORT, debug=True, reloader=False)
+    run(host=RPI_IP, port=RPI_PORT, debug=True, reloader=True)
     logging.info("exit server")
