@@ -29,8 +29,8 @@ def getlevel():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="/home/pi/mserver.log", level=logging.INFO)
+    logging.basicConfig(filename="/home/pi/mserver.log", level=logging.WARN)
     load_dotenv(find_dotenv())
     RPI_IP = getenv("RPI_IP")
     RPI_PORT = getenv("RPI_PORT")
-    run(host=RPI_IP, port=RPI_PORT, debug=False, reloader=True)
+    run(host=RPI_IP, port=RPI_PORT, debug=False, reloader=False)
